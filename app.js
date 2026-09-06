@@ -286,10 +286,14 @@ document.querySelector("#confirm-reset").addEventListener("click", () => {
 });
 
 const savedTheme = localStorage.getItem(themeKey);
-if (savedTheme === "dark") document.body.classList.add("dark");
+if (savedTheme === "dark") {
+  document.documentElement.classList.add("dark");
+  document.body.classList.add("dark");
+}
 document.querySelector(".theme-toggle").addEventListener("click", () => {
-  document.body.classList.toggle("dark");
-  localStorage.setItem(themeKey, document.body.classList.contains("dark") ? "dark" : "light");
+  const dark = document.body.classList.toggle("dark");
+  document.documentElement.classList.toggle("dark", dark);
+  localStorage.setItem(themeKey, dark ? "dark" : "light");
 });
 
 if (window.desktop?.isDesktop) {

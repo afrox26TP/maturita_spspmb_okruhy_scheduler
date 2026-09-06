@@ -330,15 +330,19 @@ body.dark {
   --line: #2d3a3e;
   --navy: #182124;
 }
-body.dark {
+html.dark, body.dark {
   scrollbar-color: #536267 var(--bg);
+  color-scheme: dark;
 }
-body.dark ::-webkit-scrollbar-track { background: var(--bg); }
-body.dark ::-webkit-scrollbar-thumb {
+html.dark::-webkit-scrollbar-track,
+html.dark ::-webkit-scrollbar-track { background: #111719; }
+html.dark::-webkit-scrollbar-thumb,
+html.dark ::-webkit-scrollbar-thumb {
   border-color: var(--bg);
-  background: #536267;
+  background: #354449;
 }
-body.dark ::-webkit-scrollbar-thumb:hover { background: #68797f; }
+html.dark::-webkit-scrollbar-thumb:hover,
+html.dark ::-webkit-scrollbar-thumb:hover { background: #46575c; }
 
 @media (max-width: 760px) {
   .stats { grid-template-columns: 1fr 1fr; }
