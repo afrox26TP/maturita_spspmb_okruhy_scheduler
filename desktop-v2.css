@@ -203,3 +203,56 @@ dialog form > div { display: flex; justify-content: center; gap: 7px; }
   .global-search { width: 120px; }
   .calendar-head, .week-row { grid-template-columns: 94px minmax(170px, 1fr) minmax(150px, .8fr) 66px; }
 }
+
+/* Comfortable reading size */
+@media (min-width: 1051px) {
+  :root { --left-width: 240px; --right-width: 350px; }
+}
+
+body { font-size: 15px; }
+.identity strong { font-size: 15px; }
+.period-controls h1 { font-size: 17px; }
+.global-search { width: 175px; }
+.global-search input { font-size: 13px; }
+.mini-title strong { font-size: 13px; }
+.weekdays { font-size: 10px; }
+.month-day { width: 25px; height: 25px; font-size: 11px; }
+.progress-ring strong { font-size: 14px; }
+.progress-ring span { font-size: 9px; }
+.progress-summary > div:last-child strong { font-size: 15px; }
+.progress-summary > div:last-child span { font-size: 11px; }
+.filter { min-height: 36px; font-size: 12px; }
+.filter b, .legend { font-size: 11px; }
+.deadline span { font-size: 10px; }
+.deadline strong { font-size: 12px; }
+.deadline small, .text-button { font-size: 11px; }
+
+.calendar-head,
+.week-row { grid-template-columns: 124px minmax(210px, 1fr) minmax(180px, .82fr) 84px; }
+.calendar-head { min-height: 40px; font-size: 10px; }
+.week-row { min-height: 76px; }
+.week-number { width: 29px; height: 29px; font-size: 12px; }
+.week-date strong { font-size: 11px; }
+.week-date span { font-size: 10px; }
+.event-type { font-size: 9px; }
+.event-title { font-size: 12px; line-height: 1.3; }
+.status-pill { font-size: 9px; }
+
+.detail-head span:first-child { font-size: 9px; }
+.detail-head h2 { font-size: 19px; }
+.detail-head p { font-size: 11px; }
+.week-state { font-size: 9px !important; }
+.detail-progress > span { font-size: 11px; }
+.detail-section h3 { font-size: 10px; }
+.detail-subject small { font-size: 9px; }
+.detail-subject strong { font-size: 12px; line-height: 1.35; }
+.subtasks-heading span { font-size: 10px; }
+.subtask-group summary { min-height: 34px; }
+.subtask-group summary strong { font-size: 11px; }
+.subtask-group summary span { font-size: 10px; }
+.group-complete { min-height: 25px; font-size: 9px; }
+.subject-divider { font-size: 10px; }
+.detail-check { min-height: 36px; font-size: 12px; line-height: 1.35; }
+.output-section p { font-size: 12px; }
+.detail-footer small { font-size: 10px; }
+.no-subtasks { font-size: 11px; }
