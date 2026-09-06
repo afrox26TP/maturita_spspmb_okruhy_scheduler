@@ -1,0 +1,37 @@
+{
+  "name": "maturita-2027",
+  "version": "1.0.0",
+  "description": "Kompaktní studijní plán s připomínkami pro maturitu 2027",
+  "main": "main.js",
+  "author": "Student",
+  "license": "MIT",
+  "scripts": {
+    "start": "electron .",
+    "dist": "electron-builder --win nsis"
+  },
+  "devDependencies": {
+    "electron": "^38.0.0",
+    "electron-builder": "^26.0.12"
+  },
+  "build": {
+    "appId": "cz.maturita.plan2027",
+    "productName": "Maturita 2027",
+    "files": [
+      "index.html",
+      "styles.css",
+      "app.js",
+      "main.js",
+      "preload.js",
+      "icon.svg"
+    ],
+    "win": {
+      "target": "nsis"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true
+    }
+  }
+}
