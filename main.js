@@ -6,6 +6,7 @@ const START = new Date(2026, 8, 7);
 const DEADLINE = new Date(2027, 2, 3, 23, 59, 59);
 const REMINDER_HOUR = 20;
 const SETTINGS_FILE = "desktop-state.json";
+const hasSingleInstanceLock = app.requestSingleInstanceLock();
 
 let mainWindow;
 let tray;
@@ -59,13 +60,14 @@ function createWindow() {
 
 function showWindow() {
   if (!mainWindow) createWindow();
+  if (mainWindow.isMinimized()) mainWindow.restore();
   mainWindow.show();
   mainWindow.focus();
 }
 
-function createTray() {
-  let image = nativeImage.createFromPath(path.join(__dirname, "icon.svg"));
-  if (image.isEmpty()) image = nativeImage.createEmpty();
+async function createTray() {
+  let image = await app.getFileIcon(process.execPath, { size: "small" });
+  if (image.isEmpty()) image = nativeImage.createFromPath(path.join(__dirname, "icon.svg"));
   tray = new Tray(image.resize({ width: 16, height: 16 }));
   tray.setToolTip("Maturita 2027");
   tray.setContextMenu(Menu.buildFromTemplate([
@@ -74,6 +76,7 @@ function createTray() {
     { type: "separator" },
     { label: "Ukončit", click: () => { quitting = true; app.quit(); } }
   ]));
+  tray.on("click", showWindow);
   tray.on("double-click", showWindow);
 }
 
@@ -140,11 +143,18 @@ function checkReminders() {
   }
 }
 
-app.whenReady().then(() => {
+if (!hasSingleInstanceLock) {
+  app.quit();
+} else {
+  app.on("second-instance", () => showWindow());
+}
+
+app.whenReady().then(async () => {
+  if (!hasSingleInstanceLock) return;
   app.setAppUserModelId("cz.maturita.plan2027");
   loadDesktopState();
   createWindow();
-  createTray();
+  await createTray();
   app.setLoginItemSettings({
     openAtLogin: true,
     path: process.execPath,

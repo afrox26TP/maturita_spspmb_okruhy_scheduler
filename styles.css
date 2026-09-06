@@ -221,6 +221,18 @@ dialog p { color: var(--muted); }
   --shadow: none;
 }
 body { font-family: Inter, "Segoe UI", system-ui, sans-serif; font-size: 14px; }
+html {
+  scrollbar-color: #aeb8bc var(--bg);
+  scrollbar-width: thin;
+}
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb {
+  border: 2px solid var(--bg);
+  border-radius: 8px;
+  background: #aeb8bc;
+}
+::-webkit-scrollbar-thumb:hover { background: #8d999e; }
 .container { width: min(1100px, calc(100% - 32px)); }
 .hero { color: var(--ink); padding-bottom: 22px; background: var(--surface); border-bottom: 1px solid var(--line); }
 .nav { height: 56px; border-bottom: 1px solid var(--line); }
@@ -318,6 +330,15 @@ body.dark {
   --line: #2d3a3e;
   --navy: #182124;
 }
+body.dark {
+  scrollbar-color: #536267 var(--bg);
+}
+body.dark ::-webkit-scrollbar-track { background: var(--bg); }
+body.dark ::-webkit-scrollbar-thumb {
+  border-color: var(--bg);
+  background: #536267;
+}
+body.dark ::-webkit-scrollbar-thumb:hover { background: #68797f; }
 
 @media (max-width: 760px) {
   .stats { grid-template-columns: 1fr 1fr; }
