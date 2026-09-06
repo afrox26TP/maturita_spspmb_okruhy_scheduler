@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#f7f8fa">
+  <title>Maturita 2027</title>
+  <link rel="stylesheet" href="desktop-v2.css">
+  <script src="desktop-app.js" defer></script>
+</head>
+<body>
+  <div class="app">
+    <header class="appbar">
+      <div class="identity">
+        <span class="logo">M</span>
+        <strong>Maturita 2027</strong>
+      </div>
+      <div class="period-controls">
+        <button class="button" id="today-button" type="button">Dnes</button>
+        <button class="icon-button" id="previous-week" type="button" aria-label="Předchozí týden">‹</button>
+        <button class="icon-button" id="next-week" type="button" aria-label="Další týden">›</button>
+        <h1 id="period-title">Studijní plán</h1>
+      </div>
+      <div class="appbar-actions">
+        <label class="global-search"><span>⌕</span><input id="search-input" type="search" placeholder="Hledat okruh" autocomplete="off"></label>
+        <button class="icon-button" id="test-reminder" type="button" aria-label="Vyzkoušet upozornění" title="Vyzkoušet upozornění" hidden>♢</button>
+        <button class="icon-button theme-toggle" type="button" aria-label="Přepnout barevný režim" title="Přepnout barevný režim">◐</button>
+      </div>
+    </header>
+
+    <aside class="left-panel">
+      <section class="mini-calendar" aria-labelledby="mini-month-title">
+        <div class="mini-title"><strong id="mini-month-title">Září 2026</strong></div>
+        <div class="weekdays"><span>Po</span><span>Út</span><span>St</span><span>Čt</span><span>Pá</span><span>So</span><span>Ne</span></div>
+        <div class="month-days" id="month-days"></div>
+      </section>
+
+      <section class="progress-summary">
+        <div class="progress-ring" id="progress-ring"><strong id="progress-percent">0%</strong><span>hotovo</span></div>
+        <div><strong id="progress-detail">0 / 50</strong><span>maturitních okruhů</span></div>
+      </section>
+
+      <nav class="filters" aria-label="Filtr harmonogramu">
+        <button class="filter active" data-filter="all" type="button"><span class="filter-dot all"></span>Všechny týdny <b id="count-all">26</b></button>
+        <button class="filter" data-filter="active" type="button"><span class="filter-dot current"></span>Aktuální týden <b id="count-active">1</b></button>
+        <button class="filter" data-filter="todo" type="button"><span class="filter-dot todo"></span>K dokončení <b id="count-todo">26</b></button>
+        <button class="filter" data-filter="done" type="button"><span class="filter-dot done"></span>Hotové <b id="count-done">0</b></button>
+      </nav>
+
+      <section class="legend">
+        <span><i class="program-color"></i>Programování</span>
+        <span><i class="network-color"></i>Počítačové sítě</span>
+      </section>
+
+      <div class="left-footer">
+        <div class="deadline"><span>Cíl</span><strong>3. března 2027</strong><small id="days-left">— dní zbývá</small></div>
+        <button class="text-button reset-button" type="button">Obnovit celý postup</button>
+      </div>
+    </aside>
+
+    <main class="calendar">
+      <div class="calendar-head">
+        <div class="week-column">Týden</div>
+        <div>Programování</div>
+        <div>Počítačové sítě</div>
+        <div class="status-column">Stav</div>
+      </div>
+      <div class="calendar-body" id="weeks-grid" aria-live="polite"></div>
+      <div class="empty-state" id="empty-state" hidden>Žádný týden neodpovídá filtru.</div>
+    </main>
+
+    <aside class="detail-panel" id="detail-panel">
+      <div class="detail-head">
+        <div><span id="detail-eyebrow">Vybraný týden</span><h2 id="detail-title">Týden 1</h2><p id="detail-dates"></p></div>
+        <span class="week-state" id="detail-state">Čeká</span>
+      </div>
+
+      <div class="detail-progress"><span><b id="detail-progress-label">0 ze 2 hotovo</b><i id="detail-progress-percent">0%</i></span><div><i id="detail-progress-bar"></i></div></div>
+
+      <section class="detail-section">
+        <h3>Okruhy</h3>
+        <div id="detail-subjects"></div>
+      </section>
+
+      <section class="detail-section checklist-section">
+        <h3>Checklist přípravy</h3>
+        <div id="detail-checklist"></div>
+      </section>
+
+      <section class="detail-section output-section">
+        <h3>Kontrolní výstup</h3>
+        <p id="detail-output"></p>
+      </section>
+
+      <div class="detail-footer">
+        <button class="button primary" id="complete-week" type="button">Označit týden jako hotový</button>
+        <small>Změny se ukládají automaticky</small>
+      </div>
+    </aside>
+  </div>
+
+  <dialog id="reset-dialog">
+    <form method="dialog">
+      <span class="dialog-symbol">↺</span>
+      <h2>Obnovit celý plán?</h2>
+      <p>Všechny označené okruhy a checklisty budou smazány.</p>
+      <div><button class="button" value="cancel">Zrušit</button><button class="button danger" id="confirm-reset" value="confirm">Obnovit</button></div>
+    </form>
+  </dialog>
+</body>
+</html>

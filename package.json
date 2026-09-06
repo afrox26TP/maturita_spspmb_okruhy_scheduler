@@ -17,9 +17,9 @@
     "appId": "cz.maturita.plan2027",
     "productName": "Maturita 2027",
     "files": [
-      "index.html",
-      "desktop.css",
-      "app.js",
+      "desktop.html",
+      "desktop-v2.css",
+      "desktop-app.js",
       "main.js",
       "preload.js",
       "icon.svg"

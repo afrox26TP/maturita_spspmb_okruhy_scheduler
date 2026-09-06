@@ -49,7 +49,7 @@ function createWindow() {
     }
   });
 
-  mainWindow.loadFile("index.html");
+  mainWindow.loadFile("desktop.html");
   mainWindow.on("close", event => {
     if (!quitting) {
       event.preventDefault();
