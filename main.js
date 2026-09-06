@@ -6,6 +6,7 @@ const START = new Date(2026, 8, 7);
 const DEADLINE = new Date(2027, 2, 3, 23, 59, 59);
 const REMINDER_HOUR = 20;
 const SETTINGS_FILE = "desktop-state.json";
+const startHidden = process.argv.includes("--hidden");
 const localAppDataPath = process.env.LOCALAPPDATA || app.getPath("appData");
 const installedProgramsPath = path.join(localAppDataPath, "Programs").toLowerCase();
 const isInstalledBuild = app.isPackaged && process.execPath.toLowerCase().startsWith(installedProgramsPath);
@@ -48,6 +49,7 @@ function createWindow() {
     height: 780,
     minWidth: 1000,
     minHeight: 620,
+    show: !startHidden,
     backgroundColor: "#f5f6f7",
     autoHideMenuBar: true,
     icon: path.join(__dirname, "icon.svg"),
@@ -58,7 +60,9 @@ function createWindow() {
     }
   });
 
-  mainWindow.loadFile("desktop.html");
+  mainWindow.loadFile(path.join(__dirname, "desktop.html")).catch(error => {
+    console.error("Nepodařilo se načíst hlavní okno aplikace:", error);
+  });
   mainWindow.on("close", event => {
     if (!quitting) {
       event.preventDefault();
@@ -73,6 +77,7 @@ function showWindow() {
     return;
   }
   if (!mainWindow || mainWindow.isDestroyed()) createWindow();
+  pendingShow = false;
   if (mainWindow.isMinimized()) mainWindow.restore();
   mainWindow.show();
   mainWindow.focus();
@@ -178,7 +183,7 @@ app.whenReady().then(async () => {
       args: ["--hidden"]
     });
   }
-  if (process.argv.includes("--hidden") && !pendingShow) mainWindow.hide();
+  if (startHidden && !pendingShow) mainWindow.hide();
   else showWindow();
   checkReminders();
   timer = setInterval(checkReminders, 30_000);
