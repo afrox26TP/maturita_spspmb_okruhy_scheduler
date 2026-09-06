@@ -4,5 +4,6 @@ contextBridge.exposeInMainWorld("desktop", {
   isDesktop: true,
   syncProgress: progress => ipcRenderer.send("progress:update", progress),
   showTestReminder: () => ipcRenderer.invoke("reminder:test"),
-  getReminderSettings: () => ipcRenderer.invoke("reminder:settings")
+  getReminderSettings: () => ipcRenderer.invoke("reminder:settings"),
+  getTopicDocuments: () => ipcRenderer.invoke("topics:documents")
 });

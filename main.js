@@ -211,3 +211,18 @@ ipcMain.handle("reminder:settings", () => ({
   overdue: true,
   openAtLogin: app.getLoginItemSettings().openAtLogin
 }));
+
+ipcMain.handle("topics:documents", () => {
+  const readDocument = filename => {
+    try {
+      return fs.readFileSync(path.join(__dirname, filename), "utf8");
+    } catch {
+      return "";
+    }
+  };
+
+  return {
+    program: readDocument("okruhy_pro.md"),
+    network: readDocument("okruhy_sit.md")
+  };
+});

@@ -33,7 +33,7 @@ const deadline = new Date(2027, 2, 3, 23, 59, 59);
 const dayMs = 86_400_000;
 const storageKey = "maturita-2027-progress-v1";
 const themeKey = "maturita-2027-theme";
-const regularChecklist = ["Projít všechny podotázky", "Vytvořit tahák na 1–2 strany", "Připravit praktický příklad", "Odříkat téma 8–10 minut"];
+const fallbackChecklist = ["Projít teorii", "Vytvořit stručný tahák", "Připravit praktický příklad", "Odříkat téma 8–10 minut"];
 
 const weeks = Array.from({ length: 26 }, (_, index) => {
   const from = new Date(start.getTime() + index * 7 * dayMs);
@@ -50,6 +50,47 @@ let state = loadState();
 let selectedWeek = getCurrentWeek().index;
 let activeFilter = "all";
 let searchTerm = "";
+let topicDocuments = { program: [], network: [] };
+const openGroups = new Set();
+
+function parseTopicDocument(markdown) {
+  const topics = [];
+  let topic = null;
+  let section = null;
+  let lastQuestion = null;
+
+  for (const rawLine of markdown.replaceAll("\r", "").split("\n")) {
+    const line = rawLine.trim();
+    if (!line) continue;
+    const topicMatch = line.match(/^(\d+)\.\s+(.+)$/);
+    if (topicMatch) {
+      topic = { number: Number(topicMatch[1]), title: topicMatch[2], sections: [] };
+      topics.push(topic);
+      section = null;
+      lastQuestion = null;
+      continue;
+    }
+    if (!topic) continue;
+    if (line.startsWith("•")) {
+      section = { title: line.slice(1).trim(), questions: [] };
+      topic.sections.push(section);
+      lastQuestion = null;
+      continue;
+    }
+    if (/^o\s+/.test(line)) {
+      section ||= { title: "Podotázky", questions: [] };
+      if (!topic.sections.includes(section)) topic.sections.push(section);
+      lastQuestion = line.replace(/^o\s+/, "").trim();
+      section.questions.push(lastQuestion);
+      continue;
+    }
+    if (lastQuestion && section?.questions.length) {
+      section.questions[section.questions.length - 1] += ` ${line}`;
+      lastQuestion = section.questions.at(-1);
+    }
+  }
+  return topics;
+}
 
 function loadState() {
   try { return JSON.parse(localStorage.getItem(storageKey)) || { subjects: {}, details: {} }; }
@@ -80,6 +121,36 @@ function getCurrentWeek() {
 function subjectDone(week, subject) { return Boolean(state.subjects?.[`${week}-${subject}`]); }
 function weekDone(week) { return week.final ? subjectDone(week.index, "final") : subjectDone(week.index, "program") && subjectDone(week.index, "network"); }
 function completedSubjects() { return weeks.slice(0, 25).reduce((sum, week) => sum + Number(subjectDone(week.index, "program")) + Number(subjectDone(week.index, "network")), 0); }
+
+function sectionsFor(week, subject) {
+  if (week.final) return [{ title: "Závěrečné simulace", questions: ["Simulace 1", "Simulace 2", "Simulace 3", "Sepsat a opravit slabá místa"] }];
+  const topic = topicDocuments[subject]?.find(item => item.number === week.index);
+  if (topic?.sections?.some(section => section.questions.length)) return topic.sections.filter(section => section.questions.length);
+  return [{ title: subject === "network" ? "Síťový okruh zatím nemá doplněné podotázky" : "Příprava okruhu", questions: fallbackChecklist }];
+}
+
+function taskKey(week, subject, sectionIndex, questionIndex) {
+  return `topic-${week.index}-${subject}-${sectionIndex}-${questionIndex}`;
+}
+
+function taskKeysFor(week, subject) {
+  return sectionsFor(week, subject).flatMap((section, sectionIndex) => section.questions.map((_question, questionIndex) => taskKey(week, subject, sectionIndex, questionIndex)));
+}
+
+function setSubjectState(week, subject, done) {
+  state.subjects ||= {};
+  state.details ||= {};
+  const key = week.final ? "final" : subject;
+  state.subjects[`${week.index}-${key}`] = done;
+  taskKeysFor(week, subject).forEach(task => { state.details[task] = done; });
+}
+
+function syncSubjectFromTasks(week, subject) {
+  const keys = taskKeysFor(week, subject);
+  const key = week.final ? "final" : subject;
+  state.subjects ||= {};
+  state.subjects[`${week.index}-${key}`] = keys.length > 0 && keys.every(task => state.details?.[task]);
+}
 
 function statusFor(week) {
   if (weekDone(week)) return ["Hotovo", "complete"];
@@ -181,11 +252,30 @@ function renderDetail() {
   document.querySelector("#detail-subjects").innerHTML = week.final
     ? detailSubject(week, "program", "Finále", week.program)
     : detailSubject(week, "program", "Programování", week.program) + detailSubject(week, "network", "Počítačové sítě", week.network);
-  const checklist = week.final ? ["Simulace 1", "Simulace 2", "Simulace 3", "Sepsat slabá místa"] : regularChecklist;
-  document.querySelector("#detail-checklist").innerHTML = checklist.map((label, index) => {
-    const key = `${week.index}-${index}`;
-    return `<label class="detail-check"><input type="checkbox" data-detail="${key}" ${state.details?.[key] ? "checked" : ""}><span>${label}</span></label>`;
+  const subjects = week.final ? ["program"] : ["program", "network"];
+  let totalTasks = 0;
+  let completedTasks = 0;
+  document.querySelector("#detail-checklist").innerHTML = subjects.map(subject => {
+    const sections = sectionsFor(week, subject);
+    const subjectLabel = week.final ? "Závěrečná příprava" : subject === "program" ? "Programování" : "Počítačové sítě";
+    const groups = sections.map((section, sectionIndex) => {
+      const keys = section.questions.map((_question, questionIndex) => taskKey(week, subject, sectionIndex, questionIndex));
+      const doneCount = keys.filter(key => state.details?.[key]).length;
+      totalTasks += keys.length;
+      completedTasks += doneCount;
+      const groupId = `${week.index}-${subject}-${sectionIndex}`;
+      const isOpen = openGroups.has(groupId) || (sectionIndex === 0 && subject === subjects[0]);
+      return `<details class="subtask-group" data-group-id="${groupId}" ${isOpen ? "open" : ""}>
+        <summary><strong>${section.title}</strong><span>${doneCount}/${keys.length}</span><button type="button" class="group-complete" data-complete-group="${subject}" data-section="${sectionIndex}">${doneCount === keys.length ? "Zrušit vše" : "Splnit vše"}</button></summary>
+        <div class="subtask-list">${section.questions.map((question, questionIndex) => {
+          const key = taskKey(week, subject, sectionIndex, questionIndex);
+          return `<label class="detail-check"><input type="checkbox" data-topic-task="${key}" data-task-subject="${subject}" ${state.details?.[key] ? "checked" : ""}><span>${question}</span></label>`;
+        }).join("")}</div>
+      </details>`;
+    }).join("");
+    return `<div class="subject-divider">${subjectLabel}</div>${groups}`;
   }).join("");
+  document.querySelector("#subtask-count").textContent = `${completedTasks} / ${totalTasks}`;
   document.querySelector("#detail-output").textContent = week.output;
   document.querySelector("#complete-week").textContent = weekDone(week) ? "Označit jako nedokončené" : "Označit týden jako hotový";
   document.querySelector("#period-title").textContent = `${formatDate(week.from, { month: "long", year: "numeric" })} · týden ${week.index}`;
@@ -199,12 +289,8 @@ function render() {
 }
 
 function setWeekSubjects(week, done) {
-  state.subjects ||= {};
-  if (week.final) state.subjects[`${week.index}-final`] = done;
-  else {
-    state.subjects[`${week.index}-program`] = done;
-    state.subjects[`${week.index}-network`] = done;
-  }
+  if (week.final) setSubjectState(week, "program", done);
+  else ["program", "network"].forEach(subject => setSubjectState(week, subject, done));
 }
 
 function selectWeek(index, scroll = false) {
@@ -214,6 +300,22 @@ function selectWeek(index, scroll = false) {
 }
 
 document.addEventListener("click", event => {
+  const groupButton = event.target.closest("[data-complete-group]");
+  if (groupButton) {
+    event.preventDefault();
+    event.stopPropagation();
+    const week = weeks[selectedWeek - 1];
+    const subject = groupButton.dataset.completeGroup;
+    const sectionIndex = Number(groupButton.dataset.section);
+    const section = sectionsFor(week, subject)[sectionIndex];
+    const keys = section.questions.map((_question, questionIndex) => taskKey(week, subject, sectionIndex, questionIndex));
+    const done = !keys.every(key => state.details?.[key]);
+    state.details ||= {};
+    keys.forEach(key => { state.details[key] = done; });
+    syncSubjectFromTasks(week, subject);
+    saveState();
+    return;
+  }
   const row = event.target.closest("[data-select-week]");
   if (row) selectWeek(Number(row.dataset.selectWeek));
   const day = event.target.closest("[data-date]");
@@ -226,16 +328,24 @@ document.addEventListener("click", event => {
 
 document.addEventListener("change", event => {
   if (event.target.matches("[data-subject]")) {
-    state.subjects ||= {};
-    state.subjects[`${event.target.dataset.week}-${event.target.dataset.subject}`] = event.target.checked;
+    const week = weeks[Number(event.target.dataset.week) - 1];
+    const subject = week.final ? "program" : event.target.dataset.subject;
+    setSubjectState(week, subject, event.target.checked);
     saveState();
   }
-  if (event.target.matches("[data-detail]")) {
+  if (event.target.matches("[data-topic-task]")) {
     state.details ||= {};
-    state.details[event.target.dataset.detail] = event.target.checked;
+    state.details[event.target.dataset.topicTask] = event.target.checked;
+    syncSubjectFromTasks(weeks[selectedWeek - 1], event.target.dataset.taskSubject);
     saveState();
   }
 });
+
+document.addEventListener("toggle", event => {
+  if (!event.target.matches(".subtask-group")) return;
+  if (event.target.open) openGroups.add(event.target.dataset.groupId);
+  else openGroups.delete(event.target.dataset.groupId);
+}, true);
 
 document.querySelectorAll(".filter").forEach(button => button.addEventListener("click", () => {
   activeFilter = button.dataset.filter;
@@ -284,5 +394,16 @@ if (window.desktop?.isDesktop) {
   window.desktop.syncProgress(state);
 }
 
-render();
-requestAnimationFrame(() => document.querySelector(`#week-${selectedWeek}`)?.scrollIntoView({ block: "center" }));
+async function initialize() {
+  if (window.desktop?.getTopicDocuments) {
+    const documents = await window.desktop.getTopicDocuments();
+    topicDocuments = {
+      program: parseTopicDocument(documents.program || ""),
+      network: parseTopicDocument(documents.network || "")
+    };
+  }
+  render();
+  requestAnimationFrame(() => document.querySelector(`#week-${selectedWeek}`)?.scrollIntoView({ block: "center" }));
+}
+
+initialize();
