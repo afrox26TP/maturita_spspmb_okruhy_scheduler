@@ -123,6 +123,7 @@ function updateDashboard() {
   document.querySelector("#progress-percent").textContent = `${percent} %`;
   document.querySelector("#progress-bar").style.width = `${percent}%`;
   document.querySelector("#progress-detail").textContent = `${completed} z 50 okruhů hotovo`;
+  document.querySelector("#completed-count").textContent = completed;
 
   const now = new Date();
   const days = Math.max(0, Math.ceil((deadline - now) / oneDay));
@@ -306,6 +307,12 @@ if (window.desktop?.isDesktop) {
   });
   window.desktop.syncProgress(state);
 }
+
+document.querySelector("#today-date").textContent = new Intl.DateTimeFormat("cs-CZ", {
+  day: "numeric",
+  month: "long",
+  year: "numeric"
+}).format(new Date());
 
 updateDashboard();
 renderCurrentFocus();

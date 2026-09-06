@@ -18,7 +18,7 @@
     "productName": "Maturita 2027",
     "files": [
       "index.html",
-      "styles.css",
+      "desktop.css",
       "app.js",
       "main.js",
       "preload.js",

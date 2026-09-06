@@ -5,130 +5,106 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#08131f">
   <title>Maturita 2027 — studijní plán</title>
-  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="desktop.css">
   <script src="app.js" defer></script>
 </head>
 <body>
-  <header class="hero">
-    <nav class="nav container" aria-label="Hlavní navigace">
-      <a class="brand" href="#top" aria-label="Maturita 2027 – začátek stránky">
-        <span class="brand-mark">M27</span>
-        <span>Studijní plán</span>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <a class="brand" href="#top" aria-label="Maturita 2027">
+        <span class="brand-mark">M</span>
+        <span><strong>Maturita</strong><small>Plán 2027</small></span>
       </a>
-      <div class="nav-actions">
-        <button class="button reminder-test" id="test-reminder" type="button" hidden>🔔 Připomínky 20:00</button>
-        <button class="icon-button theme-toggle" type="button" aria-label="Přepnout barevný režim" title="Přepnout barevný režim">
-          <span aria-hidden="true">◐</span>
-        </button>
-        <button class="button button-ghost reset-button" type="button">Obnovit plán</button>
+
+      <nav class="side-nav" aria-label="Navigace aplikace">
+        <a class="active" href="#top"><span>⌂</span>Přehled</a>
+        <a href="#plan"><span>☷</span>Harmonogram</a>
+        <a href="#milestones-section"><span>◇</span>Milníky</a>
+        <a href="#routine"><span>◷</span>Týdenní režim</a>
+      </nav>
+
+      <div class="sidebar-status">
+        <div class="sidebar-status-head"><span>Celkový postup</span><strong id="progress-percent">0 %</strong></div>
+        <div class="progress-track"><span id="progress-bar"></span></div>
+        <small id="progress-detail">0 z 50 okruhů hotovo</small>
       </div>
-    </nav>
 
-    <div class="container hero-content" id="top">
-      <div class="eyebrow"><span class="live-dot"></span> Cíl: 3. března 2027</div>
-      <h1>Každý týden o dva<br><span>okruhy blíž maturitě.</span></h1>
-      <p class="hero-copy">Přehledný plán pro 25 programátorských a 25 síťových okruhů. Pokrok se automaticky ukládá v tomto prohlížeči.</p>
-
-      <div class="stats" aria-label="Souhrn studijního plánu">
-        <article class="stat stat-primary">
-          <div class="stat-top"><span>Celkový postup</span><strong id="progress-percent">0 %</strong></div>
-          <div class="progress-track"><span id="progress-bar"></span></div>
-          <small id="progress-detail">0 z 50 okruhů hotovo</small>
-        </article>
-        <article class="stat">
-          <span>Zbývá</span>
-          <strong id="days-left">—</strong>
-          <small id="days-caption">do cílového data</small>
-        </article>
-        <article class="stat">
-          <span>Aktuální týden</span>
-          <strong id="current-week">—</strong>
-          <small id="current-week-dates">načítám…</small>
-        </article>
-        <article class="stat">
-          <span>Tempo</span>
-          <strong>2 okruhy</strong>
-          <small>přibližně 5 hodin týdně</small>
-        </article>
+      <div class="sidebar-footer">
+        <button class="side-action reminder-test" id="test-reminder" type="button" hidden><span>♢</span>Připomínka 20:00</button>
+        <button class="side-action reset-button" type="button"><span>↺</span>Obnovit postup</button>
+        <div class="goal"><span class="goal-dot"></span><div><small>Cílové datum</small><strong>3. 3. 2027</strong></div></div>
       </div>
-    </div>
-  </header>
+    </aside>
 
-  <main>
-    <section class="container current-section" id="current-section" aria-labelledby="current-title">
-      <div class="section-heading">
+    <div class="workspace">
+      <header class="topbar" id="top">
         <div>
-          <span class="section-kicker">Právě teď</span>
-          <h2 id="current-title">Tento týden</h2>
+          <h1>Studijní přehled</h1>
+          <p>Dnes je <span id="today-date">7. září 2026</span></p>
         </div>
-        <button class="button button-primary" id="jump-current" type="button">Zobrazit v plánu ↓</button>
-      </div>
-      <div id="current-focus" class="focus-card"></div>
-    </section>
-
-    <section class="container schedule-section" id="plan" aria-labelledby="schedule-title">
-      <div class="section-heading schedule-heading">
-        <div>
-          <span class="section-kicker">7. 9. 2026 — 3. 3. 2027</span>
-          <h2 id="schedule-title">Týdenní harmonogram</h2>
+        <div class="topbar-actions">
+          <div class="deadline-chip"><span>Zbývá</span><strong id="days-left">—</strong><small id="days-caption">do cíle</small></div>
+          <button class="icon-button theme-toggle" type="button" aria-label="Přepnout barevný režim" title="Přepnout barevný režim">◐</button>
         </div>
-        <div class="view-switch" aria-label="Zobrazení plánu">
-          <button type="button" data-view="cards" aria-label="Karty">▦</button>
-          <button type="button" class="active" data-view="compact" aria-label="Kompaktní seznam">☷</button>
-        </div>
-      </div>
+      </header>
 
-      <div class="toolbar">
-        <label class="search">
-          <span aria-hidden="true">⌕</span>
-          <input id="search-input" type="search" placeholder="Hledat okruh…" autocomplete="off">
-        </label>
-        <div class="filters" aria-label="Filtrovat týdny">
-          <button type="button" class="filter active" data-filter="all">Vše <span id="count-all">26</span></button>
-          <button type="button" class="filter" data-filter="active">Aktuální <span id="count-active">1</span></button>
-          <button type="button" class="filter" data-filter="todo">Čeká <span id="count-todo">26</span></button>
-          <button type="button" class="filter" data-filter="done">Hotovo <span id="count-done">0</span></button>
-        </div>
-      </div>
+      <main class="content">
+        <section class="overview-grid" aria-label="Rychlý přehled">
+          <article class="metric"><span class="metric-icon green">✓</span><div><small>Hotové okruhy</small><strong id="completed-count">0</strong><span>z 50 celkem</span></div></article>
+          <article class="metric"><span class="metric-icon violet">▣</span><div><small>Aktuální týden</small><strong id="current-week">—</strong><span id="current-week-dates">načítám…</span></div></article>
+          <article class="metric"><span class="metric-icon blue">◷</span><div><small>Týdenní tempo</small><strong>2 okruhy</strong><span>přibližně 5 hodin</span></div></article>
+        </section>
 
-      <div id="weeks-grid" class="weeks-grid" aria-live="polite"></div>
-      <p id="empty-state" class="empty-state" hidden>Žádný týden neodpovídá vybranému filtru.</p>
-    </section>
-
-    <section class="milestones-section">
-      <div class="container">
-        <div class="section-heading">
-          <div>
-            <span class="section-kicker">Kontrolní body</span>
-            <h2>Měsíční milníky</h2>
+        <section class="panel current-section" id="current-section" aria-labelledby="current-title">
+          <div class="panel-head">
+            <div><span class="section-kicker">Právě teď</span><h2 id="current-title">Tento týden</h2></div>
+            <button class="button button-primary" id="jump-current" type="button">Najít v plánu</button>
           </div>
-        </div>
-        <div id="milestones" class="milestones"></div>
-      </div>
-    </section>
+          <div id="current-focus" class="focus-card"></div>
+        </section>
 
-    <section class="container routine-section" aria-labelledby="routine-title">
-      <div class="section-heading">
-        <div>
-          <span class="section-kicker">Udržitelný rytmus</span>
-          <h2 id="routine-title">Jak vypadá jeden týden</h2>
-        </div>
-        <strong class="time-badge">≈ 5 h / týden</strong>
-      </div>
-      <div class="routine-grid">
-        <article><span>PO</span><div><strong>Programování</strong><p>Teorie a poznámky · 60–90 min</p></div></article>
-        <article><span>ÚT</span><div><strong>Programování</strong><p>Praktická ukázka a výklad · 60–90 min</p></div></article>
-        <article><span>ST</span><div><strong>Sítě</strong><p>Teorie a poznámky · 60–90 min</p></div></article>
-        <article><span>ČT</span><div><strong>Sítě</strong><p>Schéma, konfigurace a výklad · 60–90 min</p></div></article>
-        <article><span>PÁ</span><div><strong>Opakování</strong><p>Oba nové okruhy · 45–60 min</p></div></article>
-        <article><span>SO</span><div><strong>Simulace</strong><p>Jeden starší okruh · 30–45 min</p></div></article>
-      </div>
-    </section>
-  </main>
+        <section class="panel schedule-section" id="plan" aria-labelledby="schedule-title">
+          <div class="panel-head schedule-heading">
+            <div><span class="section-kicker">Září 2026 — březen 2027</span><h2 id="schedule-title">Harmonogram</h2></div>
+            <div class="view-switch" aria-label="Zobrazení plánu">
+              <button type="button" data-view="cards" aria-label="Karty">▦</button>
+              <button type="button" class="active" data-view="compact" aria-label="Seznam">☷</button>
+            </div>
+          </div>
 
-  <footer>
-    <div class="container"><span>Maturita 2027</span><span>Stav se ukládá pouze v tomto prohlížeči.</span></div>
-  </footer>
+          <div class="toolbar">
+            <label class="search"><span aria-hidden="true">⌕</span><input id="search-input" type="search" placeholder="Hledat okruh…" autocomplete="off"></label>
+            <div class="filters" aria-label="Filtrovat týdny">
+              <button type="button" class="filter active" data-filter="all">Vše <span id="count-all">26</span></button>
+              <button type="button" class="filter" data-filter="active">Aktuální <span id="count-active">1</span></button>
+              <button type="button" class="filter" data-filter="todo">Čeká <span id="count-todo">26</span></button>
+              <button type="button" class="filter" data-filter="done">Hotovo <span id="count-done">0</span></button>
+            </div>
+          </div>
+
+          <div id="weeks-grid" class="weeks-grid" aria-live="polite"></div>
+          <p id="empty-state" class="empty-state" hidden>Žádný týden neodpovídá vybranému filtru.</p>
+        </section>
+
+        <section class="panel" id="milestones-section">
+          <div class="panel-head"><div><span class="section-kicker">Kontrolní body</span><h2>Milníky</h2></div></div>
+          <div id="milestones" class="milestones"></div>
+        </section>
+
+        <section class="panel routine-section" id="routine" aria-labelledby="routine-title">
+          <div class="panel-head"><div><span class="section-kicker">Pracovní rytmus</span><h2 id="routine-title">Týdenní režim</h2></div><strong class="time-badge">≈ 5 h týdně</strong></div>
+          <div class="routine-grid">
+            <article><span>PO</span><div><strong>Programování</strong><p>Teorie a poznámky · 60–90 min</p></div></article>
+            <article><span>ÚT</span><div><strong>Programování</strong><p>Praktická ukázka · 60–90 min</p></div></article>
+            <article><span>ST</span><div><strong>Sítě</strong><p>Teorie a poznámky · 60–90 min</p></div></article>
+            <article><span>ČT</span><div><strong>Sítě</strong><p>Schéma a konfigurace · 60–90 min</p></div></article>
+            <article><span>PÁ</span><div><strong>Opakování</strong><p>Oba nové okruhy · 45–60 min</p></div></article>
+            <article><span>SO</span><div><strong>Simulace</strong><p>Jeden starší okruh · 30–45 min</p></div></article>
+          </div>
+        </section>
+      </main>
+    </div>
+  </div>
 
   <dialog id="reset-dialog">
     <form method="dialog">
