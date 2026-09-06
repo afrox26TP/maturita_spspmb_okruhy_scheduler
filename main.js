@@ -6,12 +6,21 @@ const START = new Date(2026, 8, 7);
 const DEADLINE = new Date(2027, 2, 3, 23, 59, 59);
 const REMINDER_HOUR = 20;
 const SETTINGS_FILE = "desktop-state.json";
+const localAppDataPath = process.env.LOCALAPPDATA || app.getPath("appData");
+const installedProgramsPath = path.join(localAppDataPath, "Programs").toLowerCase();
+const isInstalledBuild = app.isPackaged && process.execPath.toLowerCase().startsWith(installedProgramsPath);
+
+if (!isInstalledBuild) {
+  app.setPath("userData", path.join(app.getPath("appData"), "Maturita 2027 Development"));
+}
+
 const hasSingleInstanceLock = app.requestSingleInstanceLock();
 
 let mainWindow;
 let tray;
 let quitting = false;
 let timer;
+let pendingShow = false;
 let progress = { subjects: {}, details: {} };
 let desktopState = { lastDaily: "", lastWeekly: "" };
 
@@ -59,7 +68,11 @@ function createWindow() {
 }
 
 function showWindow() {
-  if (!mainWindow) createWindow();
+  if (!app.isReady()) {
+    pendingShow = true;
+    return;
+  }
+  if (!mainWindow || mainWindow.isDestroyed()) createWindow();
   if (mainWindow.isMinimized()) mainWindow.restore();
   mainWindow.show();
   mainWindow.focus();
@@ -146,7 +159,10 @@ function checkReminders() {
 if (!hasSingleInstanceLock) {
   app.quit();
 } else {
-  app.on("second-instance", () => showWindow());
+  app.on("second-instance", () => {
+    pendingShow = true;
+    showWindow();
+  });
 }
 
 app.whenReady().then(async () => {
@@ -155,12 +171,15 @@ app.whenReady().then(async () => {
   loadDesktopState();
   createWindow();
   await createTray();
-  app.setLoginItemSettings({
-    openAtLogin: true,
-    path: process.execPath,
-    args: app.isPackaged ? ["--hidden"] : [app.getAppPath(), "--hidden"]
-  });
-  if (process.argv.includes("--hidden")) mainWindow.hide();
+  if (isInstalledBuild) {
+    app.setLoginItemSettings({
+      openAtLogin: true,
+      path: process.execPath,
+      args: ["--hidden"]
+    });
+  }
+  if (process.argv.includes("--hidden") && !pendingShow) mainWindow.hide();
+  else showWindow();
   checkReminders();
   timer = setInterval(checkReminders, 30_000);
 });
