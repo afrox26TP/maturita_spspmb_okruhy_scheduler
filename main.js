@@ -35,10 +35,10 @@ function saveDesktopState() {
 
 function createWindow() {
   mainWindow = new BrowserWindow({
-    width: 1120,
-    height: 760,
-    minWidth: 720,
-    minHeight: 560,
+    width: 1360,
+    height: 780,
+    minWidth: 1000,
+    minHeight: 620,
     backgroundColor: "#f5f6f7",
     autoHideMenuBar: true,
     icon: path.join(__dirname, "icon.svg"),

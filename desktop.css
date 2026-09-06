@@ -71,7 +71,7 @@ a { color: inherit; }
 .goal small { color: #6f7d82; font-size: 8px; text-transform: uppercase; }
 .goal strong { margin-top: 2px; font-size: 11px; }
 
-.workspace { min-height: 100vh; margin-left: var(--sidebar-width); }
+.workspace { height: 100vh; margin-left: var(--sidebar-width); overflow: hidden; }
 .topbar { position: sticky; top: 0; z-index: 10; display: flex; align-items: center; justify-content: space-between; height: 64px; padding: 0 24px; border-bottom: 1px solid var(--line); background: color-mix(in srgb, var(--surface) 94%, transparent); backdrop-filter: blur(12px); }
 .topbar h1 { margin: 0; font-size: 16px; letter-spacing: -.01em; }
 .topbar p { margin: 2px 0 0; color: var(--muted); font-size: 10px; }
@@ -88,8 +88,20 @@ a { color: inherit; }
 .button-danger { color: #fff; border-color: var(--danger); background: var(--danger); }
 .button-ghost { background: transparent; }
 
-.content { display: grid; gap: 14px; max-width: 1180px; margin: 0 auto; padding: 20px 24px 36px; }
+.content {
+  display: grid;
+  grid-template-columns: minmax(560px, 1.65fr) minmax(330px, .85fr);
+  grid-template-rows: 78px auto minmax(130px, 1fr) auto;
+  gap: 10px;
+  width: 100%;
+  height: calc(100vh - 64px);
+  max-width: 1500px;
+  margin: 0 auto;
+  padding: 12px 16px 16px;
+  overflow: hidden;
+}
 .overview-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+.overview-grid { grid-column: 1 / -1; grid-row: 1; }
 .metric { display: flex; align-items: center; gap: 12px; min-height: 78px; padding: 13px; border: 1px solid var(--line); border-radius: var(--radius); background: var(--surface); }
 .metric-icon { display: grid; place-items: center; width: 36px; height: 36px; flex: 0 0 auto; border-radius: 8px; font-size: 15px; font-weight: 800; }
 .metric-icon.green { color: var(--accent); background: var(--accent-soft); }
@@ -100,12 +112,18 @@ a { color: inherit; }
 .metric strong { margin: 2px 0; font-size: 17px; }
 .metric div > span { overflow: hidden; color: var(--muted); font-size: 10px; white-space: nowrap; text-overflow: ellipsis; }
 
-.panel { padding: 14px; border: 1px solid var(--line); border-radius: var(--radius); background: var(--surface); scroll-margin-top: 76px; }
+.panel { min-width: 0; padding: 12px; border: 1px solid var(--line); border-radius: var(--radius); background: var(--surface); scroll-margin-top: 76px; }
+.current-section { grid-column: 2; grid-row: 2; }
+.schedule-section { grid-column: 1; grid-row: 2 / 5; display: flex; min-height: 0; flex-direction: column; }
+#milestones-section { grid-column: 2; grid-row: 3; min-height: 0; overflow: hidden; }
+.routine-section { grid-column: 2; grid-row: 4; }
 .panel-head { display: flex; align-items: end; justify-content: space-between; gap: 12px; margin-bottom: 12px; }
 .section-kicker { display: block; margin-bottom: 2px; color: var(--accent); font-size: 8px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
 h2 { margin: 0; font-size: 16px; letter-spacing: -.01em; }
 
 .focus-card { display: grid; grid-template-columns: 82px 1fr 1fr; overflow: hidden; border: 1px solid var(--line); border-radius: 8px; background: var(--surface-soft); }
+.current-section .focus-card { grid-template-columns: 68px 1fr; }
+.current-section .focus-topic:last-child { grid-column: 2; border-top: 1px solid var(--line); }
 .focus-card > div { padding: 12px; }
 .focus-card > div + div { border-left: 1px solid var(--line); }
 .focus-number { display: grid; place-items: center; text-align: center; }
@@ -131,7 +149,7 @@ h2 { margin: 0; font-size: 16px; letter-spacing: -.01em; }
 .filter span { margin-left: 3px; opacity: .65; }
 .filter.active { color: #fff; border-color: var(--accent); background: var(--accent); }
 
-.weeks-grid { display: grid; gap: 5px; }
+.weeks-grid { display: grid; min-height: 0; gap: 5px; overflow-y: auto; padding-right: 4px; }
 .week-card { border: 1px solid var(--line); border-radius: 8px; background: var(--surface); }
 .week-card.current { border-color: var(--accent); box-shadow: inset 3px 0 var(--accent); }
 .week-card.done { opacity: .62; }
@@ -163,14 +181,14 @@ h2 { margin: 0; font-size: 16px; letter-spacing: -.01em; }
 .weeks-grid:not(.compact) { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
 .empty-state { padding: 28px; color: var(--muted); border: 1px dashed var(--line); border-radius: 8px; text-align: center; }
 
-.milestones { display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; }
+.milestones { display: grid; grid-template-columns: repeat(2, 1fr); gap: 5px; }
 .milestone { padding: 9px; border-left: 3px solid var(--line); border-radius: 3px; background: var(--surface-soft); }
 .milestone.achieved { border-color: var(--accent); }
 .milestone strong { display: block; font-size: 10px; }
 .milestone span { color: var(--muted); font-size: 8px; }
 .milestone b { display: block; margin-top: 2px; color: var(--accent); font-size: 9px; }
 .time-badge { padding: 5px 8px; border-radius: 5px; color: var(--accent); background: var(--accent-soft); font-size: 9px; }
-.routine-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+.routine-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 5px; }
 .routine-grid article { display: flex; align-items: center; gap: 8px; padding: 9px; border: 1px solid var(--line); border-radius: 7px; background: var(--surface-soft); }
 .routine-grid article > span { display: grid; place-items: center; width: 27px; height: 27px; flex: 0 0 auto; border-radius: 6px; color: var(--accent); background: var(--accent-soft); font-size: 8px; font-weight: 800; }
 .routine-grid strong { font-size: 10px; }
@@ -196,6 +214,27 @@ dialog p { color: var(--muted); font-size: 11px; }
   .overview-grid { grid-template-columns: 1fr 1fr 1fr; }
   .weeks-grid.compact .week-card { grid-template-columns: 125px 1fr 90px; }
   .milestones { grid-template-columns: repeat(4, 1fr); }
+}
+
+@media (max-width: 950px) {
+  .workspace { height: auto; min-height: 100vh; overflow: visible; }
+  .content {
+    display: grid;
+    grid-template-columns: 1fr;
+    grid-template-rows: auto;
+    height: auto;
+    overflow: visible;
+  }
+  .overview-grid,
+  .current-section,
+  .schedule-section,
+  #milestones-section,
+  .routine-section { grid-column: 1; grid-row: auto; }
+  .current-section .focus-card { grid-template-columns: 82px 1fr 1fr; }
+  .current-section .focus-topic:last-child { grid-column: auto; border-top: 0; }
+  .weeks-grid { max-height: 600px; }
+  .milestones { grid-template-columns: repeat(4, 1fr); }
+  .routine-grid { grid-template-columns: repeat(3, 1fr); }
 }
 
 @media (max-width: 650px) {
